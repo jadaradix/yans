@@ -1,8 +1,8 @@
-/*!
+/*
  * yans
  * Copyright(c) 2015 James Garner
  * MIT Licensed
- */
+*/
 
 var express = require("express");
 var _ = require("underscore");
@@ -46,11 +46,27 @@ module.exports = function yans(options) {
     _self.app.set("views", options["viewPath"]);
   }
 
-  // Boot
-  var port = options["port"] || 80;
-  _self.app.listen(port, function() {
-    console.log("Hi. Server is running on port %d!", port);
-    console.log();
-  });
+  // Helpers
+  _self.jsonError = function(text, res) {
+    res.send({
+      "status": "error",
+      "data": text
+    });
+  };
+
+  _self.jsonSuccess = function(text, res) {
+    res.send({
+      "status": "ok",
+      "data": text
+    });
+  };
+
+  // Start
+  _self.start = function() {
+    var port = options["port"] || 80;
+    _self.app.listen(port);
+    return port;
+    // return 0;
+  }
 
 }
