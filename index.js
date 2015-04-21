@@ -63,10 +63,19 @@ module.exports = function yans(options) {
 
   // Start
   _self.start = function() {
-    var port = options["port"] || 80;
-    _self.app.listen(port);
+    var port = options["port"] || (!options["ssl"] ? 80 : 443);
+    if (options["ssl"]) {
+      var https = require("https");
+      var fs = require("fs");
+      var config = {
+        key: fs.readFileSync(options["sslKeyFile"]),
+        cert: fs.readFileSync(options["sslCertFile"])
+      };
+      https.createServer(config, _self.app).listen(port);
+    } else {
+      _self.app.listen(port);
+    }
     return port;
-    // return 0;
   }
 
 }
