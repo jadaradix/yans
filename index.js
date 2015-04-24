@@ -64,7 +64,6 @@ module.exports = function yans(options) {
   // Start
   _self.start = function(callback) {
     var port = options["port"] || (!options["ssl"] ? 80 : 443);
-    var weirdResult;
     if (options["ssl"]) {
       var https = require("https");
       var fs = require("fs");
@@ -72,16 +71,12 @@ module.exports = function yans(options) {
         key: fs.readFileSync(options["sslKeyFile"]),
         cert: fs.readFileSync(options["sslCertFile"])
       };
-      var httpsServer = https.createServer(config, _self.app);
-      weirdResult = httpsServer.listen(port, function() {
-        return callback(null, port);
-      });
-    } else {
-      weirdResult = _self.app.listen(port, function() {
-        return callback(null, port);
-      });
+      https.createServer(config, _self.app);
     }
-    weirdResult.on("error", function(err) {
+    listener = _self.app.listen(port, function() {
+      return callback(null, port);
+    });
+    listener.on("error", function(err) {
       return callback(err);
     });
   }
