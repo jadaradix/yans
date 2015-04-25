@@ -76,12 +76,15 @@ module.exports = function yans(options) {
   _self.start = function(callback) {
     var port = options["port"] || (!options["ssl"] ? 80 : 443);
     var whatToListenTo = _self.app;
-    if (options["ssl"]) {
+    if ("ssl" in options) {
       var https = require("https");
       var fs = require("fs");
       var config = {
-        key: fs.readFileSync(options["sslKeyFile"]),
-        cert: fs.readFileSync(options["sslCertFile"])
+        key: fs.readFileSync(options.ssl.keyFile),
+        cert: fs.readFileSync(options.ssl.certFile),
+        ca: fs.readFileSync(options.ssl.caFile),
+        requestCert: true,
+        rejectUnauthorized: false
       };
       whatToListenTo = https.createServer(config, _self.app);
     }
