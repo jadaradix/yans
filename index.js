@@ -46,6 +46,17 @@ module.exports = function yans(options) {
     _self.app.set("views", options["viewPath"]);
   }
 
+  // Cross Domain Middleware
+  if (options["crossdomain"]) {
+    var crossDomainMiddleware = function(req, res, next) {
+      res.header('Access-Control-Allow-Origin', '*');
+      res.header('Access-Control-Allow-Methods', 'GET,POST');
+      res.header('Access-Control-Allow-Headers', 'Content-Type');
+      next();
+    }
+    _self.app.use(crossDomainMiddleware);
+  }
+
   // Helpers
   _self.jsonError = function(text, res) {
     res.send({
@@ -64,6 +75,7 @@ module.exports = function yans(options) {
   // Start
   _self.start = function(callback) {
     var port = options["port"] || (!options["ssl"] ? 80 : 443);
+    var whatToListenTo = _self.app;
     if (options["ssl"]) {
       var https = require("https");
       var fs = require("fs");
@@ -71,13 +83,13 @@ module.exports = function yans(options) {
         key: fs.readFileSync(options["sslKeyFile"]),
         cert: fs.readFileSync(options["sslCertFile"])
       };
-      https.createServer(config, _self.app);
+      whatToListenTo = https.createServer(config, _self.app);
     }
-    listener = _self.app.listen(port, function() {
-      return callback(null, port);
+    whatToListenTo.listen(port, function() {
+      callback(null, port);
     });
-    listener.on("error", function(err) {
-      return callback(err);
+    whatToListenTo.on("error", function(err) {
+      callback(err);
     });
   }
 
