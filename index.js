@@ -5,6 +5,7 @@
 */
 
 var express = require("express");
+var bodyParser = require("body-parser");
 var _ = require("underscore");
 
 module.exports = function yans(options) {
@@ -56,6 +57,10 @@ module.exports = function yans(options) {
     }
     _self.app.use(crossDomainMiddleware);
   }
+
+  _self.app.use(bodyParser.urlencoded({
+    "extended": true
+  }));
 
   // Helpers
   _self.jsonError = function(text, res) {
