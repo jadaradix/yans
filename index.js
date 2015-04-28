@@ -58,6 +58,7 @@ module.exports = function yans(options) {
     _self.app.use(crossDomainMiddleware);
   }
 
+  _self.app.use(bodyParser.json());
   _self.app.use(bodyParser.urlencoded({
     "extended": true
   }));
