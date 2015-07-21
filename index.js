@@ -11,45 +11,45 @@ var _ = require("underscore");
 module.exports = function yans(options) {
 
   var _self = this;
+  _self._options = options;
 
   // Express
   _self.app = express();
 
   // Compression
-  if (options["compression"]) {
+  if (_self._options["compression"]) {
     var compression = require("compression");
     _self.app.use(compression());
   }
 
   // Logging
-  if (options["logging"]) {
+  if (_self._options["logging"]) {
     var morgan = require("morgan");
     _self.logger = morgan(
-      (options["loggingFormat"] ? options["loggingFormat"] : "tiny"),
+      (_self._options["loggingFormat"] ? _self._options["loggingFormat"] : "tiny"),
       {}
     );
     _self.app.use(_self.logger);
   }
 
   // Static Directories
-  if (options["staticDirectories"]) {
-    _.each(options["staticDirectories"], function(directory) {
+  if (_self._options["staticDirectories"]) {
+    _.each(_self._options["staticDirectories"], function(directory) {
       _self.app.use(
         "/" + directory,
-        express.static(options["directory"] + "/" + directory)
+        express.static(_self._options["directory"] + "/" + directory)
       );
     });
   }
 
   // Generic Configuration
-  _self.app.set("view engine", options["viewEngine"] ? options["viewEngine"] : "jade");
-  if (options["viewPath"]) {
-    _self.app.set("views", options["viewPath"]);
+  _self.app.set("view engine", _self._options["viewEngine"] ? _self._options["viewEngine"] : "jade");
+  if (_self._options["viewPath"]) {
+    _self.app.set("views", _self._options["viewPath"]);
   }
 
   // Cross Domain Middleware
-  if (options["crossDomain"] || options["crossdomain"]) {
-    //options["crossdomain"] for compatibility
+  if (_self._options["crossDomain"] || _self._options["crossdomain"]) {
     var crossDomainMiddleware = function(req, res, next) {
       res.header('Access-Control-Allow-Origin', '*');
       res.header('Access-Control-Allow-Methods', 'GET,POST');
@@ -79,22 +79,32 @@ module.exports = function yans(options) {
     });
   };
 
+  //Set Option helper
+  _self.setOption = function(name, value) {
+    _self._options[name] = value;
+  }
+
+  //Delete Option helper
+  _self.deleteOption = function(name, value) {
+    delete _self._options[name];
+  }
+
   // Start
   _self.start = function(callback) {
-    var port = options["port"] || (!options["ssl"] ? 80 : 443);
+    var port = _self._options["port"] || (!_self._options["ssl"] ? 80 : 443);
     var listeners = [_self.app];
-    if ("ssl" in options) {
+    if ("ssl" in _self._options) {
       var https = require("https");
       var fs = require("fs");
       var config = {
-        key: fs.readFileSync(options.ssl.keyFile),
-        cert: fs.readFileSync(options.ssl.certFile),
-        ca: fs.readFileSync(options.ssl.caFile),
+        key: fs.readFileSync(_self._options.ssl.keyFile),
+        cert: fs.readFileSync(_self._options.ssl.certFile),
+        ca: fs.readFileSync(_self._options.ssl.caFile),
         requestCert: true,
         rejectUnauthorized: false
       };
       listeners[0] = https.createServer(config, listeners[0]);
-      if ("httpRedirect" in options.ssl) {
+      if ("httpRedirect" in _self._options.ssl) {
         var httpListener = express();
         httpListener.yansPort = 80;
         httpListener.all("*", function(req, res) {
