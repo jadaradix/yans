@@ -48,7 +48,8 @@ module.exports = function yans(options) {
   }
 
   // Cross Domain Middleware
-  if (options["crossdomain"]) {
+  if (options["crossDomain"] || options["crossdomain"]) {
+    //options["crossdomain"] for compatibility
     var crossDomainMiddleware = function(req, res, next) {
       res.header('Access-Control-Allow-Origin', '*');
       res.header('Access-Control-Allow-Methods', 'GET,POST');
