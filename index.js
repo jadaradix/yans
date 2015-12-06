@@ -1,6 +1,6 @@
 /*
  * yans
- * Copyright(c) 2015 James Garner
+ * Copyright (c) James Garner
  * MIT Licensed
 */
 
@@ -34,9 +34,10 @@ module.exports = function yans(options) {
 
   // Static Directories
   if (_self._options["staticDirectories"]) {
+    var prepend = _self._options["staticRoutePrepend"] || "";
     _.each(_self._options["staticDirectories"], function(directory) {
       _self.app.use(
-        "/" + directory,
+        "/" + prepend + directory,
         express.static(_self._options["directory"] + "/" + directory)
       );
     });
