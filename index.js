@@ -90,6 +90,12 @@ module.exports = function yans(options) {
     delete _self._options[name];
   }
 
+  // Bodge
+  process.on("uncaughtException", function (er) {
+    console.error(er.stack);
+    process.exit(1);
+  });
+
   // Start
   _self.start = function(callback) {
     var port = _self._options["port"] || (!_self._options["ssl"] ? 80 : 443);
@@ -118,9 +124,6 @@ module.exports = function yans(options) {
     _.each(listeners, function(listener) {
       listener.listen(listener.yansPort, function() {
         callback(null, listener.yansPort);
-      });
-      listener.on("error", function(err) {
-        callback(err);
       });
     });
   }
